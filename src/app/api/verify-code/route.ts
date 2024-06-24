@@ -7,8 +7,9 @@ export async function POST(req: Request) {
   await dbConnect();
   try {
     const { username, code } = await req.json();
+
     verifyCodeSchemaValidation.parse({
-      verifyCode: code,
+      code: code,
     });
     const decodedUsername = decodeURIComponent(username);
     const user = await UserModel.findOne({ username: decodedUsername });

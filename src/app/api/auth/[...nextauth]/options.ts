@@ -10,24 +10,24 @@ export const authOptions: NextAuthOptions = {
       id: "Credentials",
       name: "Credentials",
       credentials: {
-        email: {
-          label: "email",
+        identifier: {
+          label: "Email",
           type: "email",
-          placeholder: "Enter email...",
         },
         password: {
           label: "Password",
           type: "password",
-          placeholder: "Enter password...",
         },
       },
       async authorize(credentials: any): Promise<any> {
+        console.log(credentials);
+
         await dbConnect();
         try {
           const user = await UserModel.findOne({
             $or: [
-              { email: credentials.identifer },
-              { username: credentials.identifer },
+              { email: credentials.identifier },
+              { username: credentials.identifier },
             ],
           });
           if (!user) {
@@ -35,7 +35,7 @@ export const authOptions: NextAuthOptions = {
           }
 
           if (!user.isVerified) {
-            throw new Error("Please verify you  account");
+            throw new Error("Please verify you account");
           }
 
           const isPasswordCorrect = await bcrypt.compare(
