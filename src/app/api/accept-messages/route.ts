@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
 
   const user: User = session?.user as User;
-  if (!session || session?.user) {
+  if (!session || !session?.user) {
     return Response.json(
       {
         success: false,
@@ -27,8 +27,9 @@ export async function POST(req: Request) {
     const updatedUser = await UserModel.findByIdAndUpdate(
       userId,
       { isAcceptingMessage: acceptMessages },
-      { new: true }
+      { new: true, projection: { password: false } }
     );
+
     if (!updatedUser) {
       return Response.json(
         {
@@ -99,7 +100,7 @@ export async function GET(req: Request) {
     return Response.json(
       {
         success: true,
-        isAcceptingMessages: foundUser.isAcceptingMessage,
+        isAcceptingMessage: foundUser.isAcceptingMessage,
       },
       {
         status: 200,

@@ -42,11 +42,13 @@ export async function GET(req: Request) {
     return Response.json(
       {
         success: true,
-        message: user[0].messages,
+        message: user[0]?.messages,
       },
       {
         status: 200,
       }
     );
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
 }

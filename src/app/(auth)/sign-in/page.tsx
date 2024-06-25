@@ -30,41 +30,49 @@ export default function SignUpForm() {
   const form = useForm<z.infer<typeof signInSchemaValidation>>({
     resolver: zodResolver(signInSchemaValidation),
     defaultValues: {
-      identifier: "",
+      email: "",
       password: "",
     },
   });
 
   const onSubmit = async (data: z.infer<typeof signInSchemaValidation>) => {
-    console.log(data);
-
-    // return;
     setIsSubmitting(true);
-    const result = await signIn("credentials", {
-      redirect: false,
-      identifier: data.identifier,
-      password: data.password,
-    });
-    console.log(result);
+    try {
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: data.email,
+        password: data.password,
+      });
 
-    if (result?.error) {
-      if (result.error === "CredentialsSignin") {
+      console.log(result?.url);
+
+      if (result?.error) {
         toast({
           title: "Login Failed",
-          description: "Incorrect username or password",
+          description:
+            result.error === "Error: Incorrect Password"
+              ? "Incorrect username or password"
+              : result.error,
           variant: "destructive",
         });
+      } else if (result?.url) {
+        router.replace("/dashboard");
       } else {
         toast({
           title: "Error",
-          description: result.error,
+          description: "Unexpected error occurred.",
           variant: "destructive",
         });
       }
-    }
-
-    if (result?.url) {
-      router.replace("/dashboard");
+    } catch (error) {
+      console.error("An unexpected error occurred:", error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -72,14 +80,14 @@ export default function SignUpForm() {
     <div className="flex justify-center items-center min-h-screen bg-gray-800">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
         <div className="text-center">
-          <h1 className="text-2xl font-extrabold tracking-tight lg:text-5xl mb-6">
-            Sign In to start your anonymous adventure
+          <h1 className="text-2xl font-extrabold tracking-tight lg:text-3xl mb-6">
+            Sign In to start your adventure
           </h1>
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
-              name="identifier"
+              name="email"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
